@@ -1,56 +1,54 @@
 #!/usr/bin/python3
-"""ALX SE Log parsing interview solution"""
 
 import sys
-from collections import defaultdict
 
 
-def process_line(line):
-    """split every line to capture needed output"""
-    parts = line.strip().split()
-    if len(parts) != 9:
-        return None, None
+def print_msg(dict_sc, total_file_size):
+    """
+    Method to print
+    Args:
+        dict_sc: dict of status codes
+        total_file_size: total of the file
+    Returns:
+        Nothing
+    """
 
-    status_code = parts[-2]
-
-    try:
-        file_size = int(parts[-1])
-        status_code = int(status_code)
-    except ValueError:
-        return None, None
-
-    return file_size, status_code
-
-
-def print_metrics(total_size, status_codes_count):
-    """print the metric to stdout"""
-    print(f"File size: {total_size}")
-
-    for status_code in sorted(status_codes_count.keys()):
-        print(f"{status_code}: {status_codes_count[status_code]}")
+    print("File size: {}".format(total_file_size))
+    for key, val in sorted(dict_sc.items()):
+        if val != 0:
+            print("{}: {}".format(key, val))
 
 
-def main():
-    """main entry"""
-    total_size = 0
-    status_codes_count = defaultdict(int)
-    line_number = 0
+total_file_size = 0
+code = 0
+counter = 0
+dict_sc = {"200": 0,
+           "301": 0,
+           "400": 0,
+           "401": 0,
+           "403": 0,
+           "404": 0,
+           "405": 0,
+           "500": 0}
 
-    try:
-        for line in sys.stdin:
-            line_number += 1
+try:
+    for line in sys.stdin:
+        parsed_line = line.split()  # ✄ trimming
+        parsed_line = parsed_line[::-1]  # inverting
 
-            file_size, status_code = process_line(line)
-            if file_size is None or status_code is None:
-                continue
+        if len(parsed_line) > 2:
+            counter += 1
 
-            total_size += file_size
-            status_codes_count[status_code] += 1
+            if counter <= 10:
+                total_file_size += int(parsed_line[0])  # file size
+                code = parsed_line[1]  # status code
 
-            if line_number % 10 == 0:
-                print_metrics(total_size, status_codes_count)
-    finally:
-        print_metrics(total_size, status_codes_count)
+                if (code in dict_sc.keys()):
+                    dict_sc[code] += 1
 
+            if (counter == 10):
+                print_msg(dict_sc, total_file_size)
+                counter = 0
 
-main()
+finally:
+    print_msg(dict_sc, total_file_size)
